@@ -1,0 +1,22 @@
+﻿@model List<Product>
+
+<h3>Our Products</h3>
+
+<table class="table">
+    <thread class="thead-dark">
+        <tr>
+            <th>Product ID</th>
+            <th>Name</th>
+            <th>Price</th>
+        </tr>
+
+        @foreach (Product prod in Model)
+    {
+        <tr>
+            <td><a href=/Product/ViewProduct/@prod.ID>@prod.ID</a></td>
+            <td>@prod.Name</td>
+            <td>@prod.Price</td>
+        </tr>
+}
+        </thread>
+</table>
