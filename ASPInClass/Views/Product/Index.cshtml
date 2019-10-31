@@ -2,6 +2,10 @@
 
 <h3>Our Products</h3>
 
+<div style="display: block">
+    <a href="/Product/InsertProduct/">Create a New Product</a>
+</div>
+
 <table class="table">
     <thread class="thead-dark">
         <tr>
@@ -14,6 +18,8 @@
     {
         <tr>
             <td><a href=/Product/ViewProduct/@prod.ID>@prod.ID</a></td>
+
+            @*<td>@prod.ID @Html.ActionLink("View Info", "ViewProduct", "Product", new { id = prod.ID }, null)</td>*@
             <td>@prod.Name</td>
             <td>@prod.Price</td>
         </tr>

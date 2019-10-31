@@ -7,7 +7,7 @@ namespace ASPInClass
 {
     public class ProductRepository
     {
-        private static string connectionString = "Server=localhost;Database=bestbuy;uid=root;Pwd=password";
+        private static string connectionString = System.IO.File.ReadAllText("ConnectionString.txt");
 
         public List<Product> GetAllProducts()
         {
@@ -57,7 +57,16 @@ namespace ASPInClass
                     product.Price = reader.GetDecimal("Price");
                     product.CategoryID = reader.GetInt32("CategoryID");
                     product.OnSale = reader.GetInt32("OnSale");
-                    product.StockLevel = reader.GetString("StockLevel");
+
+                    if (reader.IsDBNull(reader.GetOrdinal("StockLevel")))
+                    {
+                        product.StockLevel = null;
+                    }
+                    else
+                    {
+                        product.StockLevel = reader.GetString("StockLevel");
+                    }
+
                 }
 
                 return product;
@@ -87,6 +96,86 @@ namespace ASPInClass
             }
         }
 
+        public void InsertProduct(Product productToInsert)
+        {
+            MySqlConnection conn = new MySqlConnection(connectionString);
 
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT INTO products (NAME, PRICE, CATEGORYID) VALUES (@name, @price, @categoryID);";
+
+            cmd.Parameters.AddWithValue("name", productToInsert.Name);
+            cmd.Parameters.AddWithValue("price", productToInsert.Price);
+            cmd.Parameters.AddWithValue("categoryID", productToInsert.CategoryID);
+
+            using (conn)
+            {
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public Product AssignCategories()
+        {
+            var catRepo = new CategoryRepository();
+
+            var catList = catRepo.GetCategories();
+
+            Product product = new Product();
+            product.Categories = catList;
+
+            return product;
+        }
+
+        public void DeleteProduct(int id)
+        {
+            MySqlConnection conn = new MySqlConnection(connectionString);
+
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "DELETE FROM products WHERE ProductID = @id;";
+            cmd.Parameters.AddWithValue("id", id);
+
+            using (conn)
+            {
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteProductFromSales(int productID)
+        {
+            MySqlConnection conn = new MySqlConnection(connectionString);
+
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "DELETE FROM sales WHERE ProductID = @productID;";
+            cmd.Parameters.AddWithValue("productID", productID);
+
+            using (conn)
+            {
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteProductFromReviews(int productID)
+        {
+            MySqlConnection conn = new MySqlConnection(connectionString);
+
+            MySqlCommand cmd = conn.CreateCommand();
+            cmd.CommandText = "DELETE FROM reviews WHERE ProductID = @productID;";
+            cmd.Parameters.AddWithValue("productID", productID);
+
+            using (conn)
+            {
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteProductFromAllTables(int productID)
+        {
+            DeleteProductFromSales(productID);
+            DeleteProductFromReviews(productID);
+            DeleteProduct(productID);
+        }
     }
 }
